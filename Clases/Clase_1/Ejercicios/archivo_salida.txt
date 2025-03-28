@@ -3,3 +3,16 @@ El número de líneas del archivo archivo_entrada.txt es: 3
 El número de líneas del archivo archivo_entrada.txt es: 3
 El número de líneas del archivo archivo_entrada.txt es: 3
 El número de líneas del archivo archivo_entrada.txt es: 3
+El número de líneas del archivo archivo_entrada.txt es: 3
+El número de líneas del archivo archivo_entrada.txt es: 3
+El número de líneas del archivo archivo_entrada.txt es: 3
+El número de líneas del archivo archivo_entrada.txt es: 3
+El número de líneas del archivo archivo_entrada.txt es: 3
+El número de líneas del archivo de entrada es: 3
+El número de líneas del archivo de entrada es: 3
+El número de líneas del archivo de entrada es: 3
+El número de líneas del archivo de entrada es: 3
+El número de líneas del archivo de entrada es: 3
+El número de líneas del archivo de entrada es: 3
+El número de líneas del archivo de entrada es: 3
+El número de líneas del archivo de entrada es: 3
