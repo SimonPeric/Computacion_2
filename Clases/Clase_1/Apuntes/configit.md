@@ -87,7 +87,10 @@ Crear un archivo `README.md` y editarlo:
 touch README.md
 nano README.md
 ```
-
+Una aclaracion es que las carpetas creadas que estan vacias no se agregaran al repositorio de git hub, para arreglar esto debemos crear un archivo "invisible":
+```bash
+touch .gitkeep
+```
 ---
 
 ## **4️⃣ Primer commit y flujo de trabajo en Git**  
@@ -108,6 +111,14 @@ git commit -m "Primer commit"
 Ver historial de commits:  
 ```bash
 git log --oneline
+```
+Para poder subir los archivos de tu repo local al repo de github se utiliza:
+```bash
+git push origin main
+```
+Main es la rama donde se pushea todo, si estas trabajando en otra rama deberias cambiarla con:
+```bash
+git branch
 ```
 
 ---
