@@ -1,0 +1,11 @@
+Reporte de verificación - blockchain.json
+Total de bloques: 60
+Bloques con alerta: 0
+
+Promedios (sobre medias de cada bloque):
+- Frecuencia promedio: 115.44
+- Presión sistólica promedio: 146.50
+- Oxígeno promedio: 95.26
+
+Bloques corruptos / inconsistencias detectadas:
+Ninguno. Cadena válida.
