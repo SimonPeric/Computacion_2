@@ -1,16 +1,16 @@
-Trabajo práctico 1 - Sistema Concurrente de Análisis Biométrico
+# Trabajo práctico 1 - Sistema Concurrente de Análisis Biométrico
 
-Archivos:
+## Archivos:
 - main.py: Ejecuta generador, analizadores y verificador. Produce blockchain.json
 - verificar_cadena.py: Verifica integridad de blockchain.json y genera reporte.txt
 - blockchain.json: Se genera al ejecutar main.py
 - reporte.txt: Generado por verificar_cadena.py
 
-Requisitos:
+## Requisitos:
 - Python 3.9+
 - Dependencias: numpy 
 
-Ejecución:
+## Ejecución:
 1) Ejecutar el sistema y generar la cadena:
    $ python3 main.py
 
@@ -19,19 +19,19 @@ Ejecución:
 2) Verificar la cadena y obtener reporte:
    $ python3 verificar_cadena.py
 
-Salida:
+## Salida:
 - blockchain.json se actualiza cada bloque.
 - reporte.txt contiene: total de bloques, bloques con alerta y promedios.
 
-Notas:
+## Notas:
 - Los analizadores envían resultados a una cola compartida; el verificador agrupa por timestamp.
 - Cada analizador envia "FIN" cuando termina; el verificador finaliza cuando recibe los 3 "FIN".
 - Si quieres cambiar la duración de la prueba, modifica la constante SAMPLES en main.py.
 
-Justificación:
+## Justificación:
 
 En este proyecto se utilizan pipes en lugar de FIFOs debido a la naturaleza de la comunicación entre procesos que se requiere:
-
+    
     Comunicación estrictamente entre procesos emparentados
     Los pipes están pensados para pasar datos entre un proceso padre y sus hijos. En este proyecto, todos los procesos que intercambian información se generan dentro de la misma jerarquía, por lo que no es necesario que otros procesos externos puedan acceder a la tubería.
 
