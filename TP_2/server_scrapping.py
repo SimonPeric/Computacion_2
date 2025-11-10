@@ -1,44 +1,58 @@
-# ---------------------------------------------------------
-# server_scrapping.py
-# Servidor que simula tareas de scraping y envía los datos
-# al servidor de procesamiento
-# ---------------------------------------------------------
+import socket
+import threading
+import json
 
-from fastapi import FastAPI
-import httpx  # Cliente HTTP asíncrono para enviar datos
-import asyncio
+HOST = '127.0.0.1'
+PORT = 8000
+PROCESSING_HOST = '127.0.0.1'
+PROCESSING_PORT = 8001
 
-app = FastAPI()
+def request_processing_server(data):
+    """Se comunica con el servidor de procesamiento (B)"""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((PROCESSING_HOST, PROCESSING_PORT))
+        s.send(json.dumps(data).encode('utf-8'))
+        response = s.recv(4096).decode('utf-8')
+        return json.loads(response)
 
-# Dirección del servidor de procesamiento
-PROCESSING_SERVER = "http://127.0.0.1:8001/procesar"
+def handle_client(conn, addr):
+    print(f"[NUEVA CONEXIÓN CLIENTE] {addr}")
+    try:
+        data = conn.recv(4096).decode('utf-8')
+        if not data:
+            return
 
-# ---------------------------------------------------------
-# Ruta raíz: prueba de funcionamiento
-# ---------------------------------------------------------
-@app.get("/")
-def home():
-    return {"mensaje": "Servidor de scraping activo"}
+        request = json.loads(data)
+        print(f"[PETICIÓN CLIENTE] {request}")
 
+        # Enviamos parte del trabajo al servidor B
+        processing_result = request_processing_server(request)
 
-# ---------------------------------------------------------
-# Simula una tarea de scraping y envía resultados
-# ---------------------------------------------------------
-@app.post("/procesar")
-async def scrapear_datos():
-    # Simulamos que obtuvimos datos de scraping
-    datos = {
-        "sitio": "TiendaEjemplo.com",
-        "precios": [100, 120, 90, 110]
-    }
+        # Construimos respuesta final
+        result = {
+            "original_text": request.get("text", ""),
+            "processing_result": processing_result,
+            "status": "success"
+        }
 
-    # Enviamos esos datos al servidor de procesamiento
-    async with httpx.AsyncClient() as client:
-        try:
-            respuesta = await client.post(PROCESSING_SERVER, json=datos)
-            if respuesta.status_code == 200:
-                return {"status": "ok", "respuesta": respuesta.json()}
-            else:
-                return {"status": "error", "detalle": respuesta.text}
-        except Exception as e:
-            return {"status": "error", "detalle": str(e)}
+        conn.send(json.dumps(result).encode('utf-8'))
+        print(f"[RESPUESTA AL CLIENTE] {result}")
+    except Exception as e:
+        print(f"[ERROR] {e}")
+    finally:
+        conn.close()
+
+def start_server():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((HOST, PORT))
+    server.listen()
+    print(f"[SERVIDOR A - Scraping] Escuchando en {HOST}:{PORT}")
+
+    while True:
+        conn, addr = server.accept()
+        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread.start()
+        print(f"[ACTIVAS] {threading.active_count() - 1} clientes")
+
+if __name__ == "__main__":
+    start_server()

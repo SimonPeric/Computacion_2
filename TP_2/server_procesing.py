@@ -1,46 +1,48 @@
-# ----------------------------------------------------------
-# server_processing.py
-# Servidor FastAPI para recibir y procesar datos de scraping
-# ----------------------------------------------------------
-
-from fastapi import FastAPI, Request
+import socket
+import threading
 import json
 
-# Creamos la aplicación principal de FastAPI
-app = FastAPI()
+HOST = '127.0.0.1'  # Escucha solo localmente
+PORT = 8001         # Puerto del servidor B
 
-# Base de datos simulada (por ahora un diccionario en memoria)
-data_store = []
+def handle_client(conn, addr):
+    print(f"[NUEVA CONEXIÓN] {addr} conectado.")
+    try:
+        data = conn.recv(4096).decode('utf-8')
+        if not data:
+            return
+        
+        # Deserializamos el mensaje recibido (JSON)
+        request = json.loads(data)
+        print(f"[SOLICITUD RECIBIDA] {request}")
 
-# ----------------------------------------------------------
-# Ruta principal: solo para verificar que el servidor funcione
-# ----------------------------------------------------------
-@app.get("/")
-def home():
-    return {"mensaje": "Servidor de procesamiento activo"}
+        # Simulamos procesamiento pesado
+        text = request.get("text", "")
+        response = {
+            "uppercase": text.upper(),
+            "length": len(text)
+        }
 
-# ----------------------------------------------------------
-# Ruta para recibir datos de scraping desde los clientes
-# ----------------------------------------------------------
-@app.post("/procesar")
-async def procesar_datos(request: Request):
-    # Leemos el cuerpo de la solicitud (el JSON que envía el cliente)
-    datos = await request.json()
+        # Devolvemos la respuesta serializada
+        conn.send(json.dumps(response).encode('utf-8'))
+        print(f"[RESPUESTA ENVIADA] {response}")
+    except Exception as e:
+        print(f"[ERROR] {e}")
+    finally:
+        conn.close()
+        print(f"[DESCONECTADO] {addr}")
 
-    # Guardamos esos datos en memoria
-    data_store.append(datos)
+def start_server():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((HOST, PORT))
+    server.listen()
+    print(f"[SERVIDOR B - Procesamiento] Escuchando en {HOST}:{PORT}")
 
-    # Simulamos un procesamiento básico: promedio de precios
-    if "precios" in datos:
-        promedio = sum(datos["precios"]) / len(datos["precios"])
-        return {"status": "ok", "promedio": promedio}
+    while True:
+        conn, addr = server.accept()
+        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread.start()
+        print(f"[ACTIVAS] {threading.active_count() - 1} conexiones")
 
-    # Si no vienen precios, solo confirmamos recepción
-    return {"status": "ok", "mensaje": "Datos recibidos correctamente"}
-
-# ----------------------------------------------------------
-# Ruta para consultar los datos procesados
-# ----------------------------------------------------------
-@app.get("/resultados")
-def ver_resultados():
-    return {"datos_guardados": data_store}
+if __name__ == "__main__":
+    start_server()
